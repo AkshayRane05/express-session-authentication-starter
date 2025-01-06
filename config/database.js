@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcryptjs = require('bcryptjs');
 
 require('dotenv').config();
 
@@ -11,7 +12,7 @@ require('dotenv').config();
  * string into the `.env` file
  * 
  * DB_STRING=mongodb://<user>:<password>@localhost:27017/database_name
- */ 
+ */
 
 const conn = process.env.DB_STRING;
 
@@ -23,10 +24,12 @@ const connection = mongoose.createConnection(conn, {
 // Creates simple schema for a User.  The hash and salt are derived from the user's given password when they register
 const UserSchema = new mongoose.Schema({
     username: String,
-    hash: String,
-    salt: String
+    password: String
 });
 
+UserSchema.methods.comparePassword = async function (password) {
+    return await bcryptjs.compare(password, this.password);
+};
 
 const User = connection.model('User', UserSchema);
 
